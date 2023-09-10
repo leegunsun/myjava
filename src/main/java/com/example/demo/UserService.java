@@ -2,9 +2,13 @@ package com.example.demo;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.LockModeType;
+import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
@@ -13,6 +17,9 @@ import lombok.RequiredArgsConstructor;
 public class UserService {
 
     private final UserRepository userRepository;
+
+    @PersistenceContext
+    private EntityManager entityManager;
 
     @Transactional
     public void createUserWithTransaction() {
@@ -38,6 +45,15 @@ public class UserService {
         user2.setName("Trans_name2 [" + formattedNow + "]");
         user2.setEmail("Trans_email2 [" + formattedNow + "]");
         userRepository.save(user2);
+    }
+
+    @Transactional
+    public Optional<UserEntity> getUserWithPessimisticLock(Long userId) {
+        UserEntity user = entityManager.find(UserEntity.class, userId,
+                LockModeType.PESSIMISTIC_WRITE);
+
+        // Optional로 결과 반환
+        return Optional.ofNullable(user);
     }
 
     public void updateUser(UserEntity user2) {
