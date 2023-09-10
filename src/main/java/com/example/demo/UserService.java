@@ -56,6 +56,7 @@ public class UserService {
         return Optional.ofNullable(user);
     }
 
+    @Transactional
     public void updateUser(UserEntity user2) {
 
         userRepository.save(user2);

@@ -24,6 +24,21 @@ public class UserController {
 
     private final UserRepository userRepository;
     private final UserService userService;
+    private final AppConfig appConfig;
+
+    @GetMapping("car")
+    public ResponseEntity<?> carTest() {
+        try {
+            Car car = appConfig.car();
+
+            car.drive();
+
+            return new ResponseEntity<>("Car test succeeded!", null, HttpStatus.OK);
+        } catch (Exception e) {
+            // TODO: handle exception
+            return new ResponseEntity<>("Car test", null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 
     @GetMapping("user")
     public UserResponse findAllUser() {
