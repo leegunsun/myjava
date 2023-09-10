@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -55,6 +56,17 @@ public class UserController {
 
         return userRepository.save(user);
     };
+
+    @GetMapping("/set-session")
+    public String setSessionAttribute(HttpSession session) {
+        session.setAttribute("user", "ChatGPT");
+        return "Session attribute 'user' set!";
+    }
+
+    @GetMapping("/get-session")
+    public String getSessionAttribute(HttpSession session) {
+        return (String) session.getAttribute("user");
+    }
 
     @PostMapping("signup")
     public UserEntity signupWithPost(@RequestBody UserDTO userDTO) {

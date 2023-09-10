@@ -81,7 +81,6 @@ public class DemoApplicationTests {
 			e.printStackTrace();
 		}
 
-		// 또한 해당 UserEntity가 정상적으로 반환되는지도 테스트할 수 있습니다.
 		assertNotNull(userService.getUserWithPessimisticLock(savedUser.getId()).orElse(null));
 	}
 }
