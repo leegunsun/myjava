@@ -1,2 +1,5 @@
-package com.example.testspringboot.demo;public class UserRepository {
+package com.example.testspringboot.demo;
+
+public class UserRepository {
+
 }

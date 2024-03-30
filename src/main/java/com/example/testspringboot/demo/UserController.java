@@ -1,2 +1,5 @@
-package com.example.testspringboot.demo;public class UserController {
+package com.example.testspringboot.demo;
+
+public class UserController {
+
 }

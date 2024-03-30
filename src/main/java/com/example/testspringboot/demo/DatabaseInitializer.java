@@ -19,7 +19,7 @@ public class DatabaseInitializer {
     }
 
     @PostConstruct
-    public  void init() throws SQLException {
+    public void init() throws SQLException {
         if (!tableExists("User")) { // "User"는 확인하고자 하는 테이블 이름
             createTable();
         }
@@ -41,5 +41,4 @@ public class DatabaseInitializer {
                 "version INT)";
         jdbcTemplate.execute(sql);
     }
-
 }
