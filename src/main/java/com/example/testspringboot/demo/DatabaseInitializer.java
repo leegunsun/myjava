@@ -20,7 +20,7 @@ public class DatabaseInitializer {
 
     @PostConstruct
     public void init() throws SQLException {
-        if (!tableExists("User")) { // "User"는 확인하고자 하는 테이블 이름
+        if (tableExists("User")) { // "User"는 확인하고자 하는 테이블 이름
             createTable();
         }
     }
@@ -34,11 +34,17 @@ public class DatabaseInitializer {
     }
 
     public void createTable () {
+        dropTable();
         String sql = "CREATE TABLE USER (" +
                 "id BIGINT AUTO_INCREMENT PRIMARY KEY, " +
                 "name VARCHAR(255), " +
                 "email VARCHAR(255), " +
                 "version INT)";
+        jdbcTemplate.execute(sql);
+    }
+
+    public void dropTable () {
+        String sql = "DROP TABLE IF EXISTS USER";
         jdbcTemplate.execute(sql);
     }
 }

@@ -1,10 +1,5 @@
 package com.example.testspringboot.demo;
 
-<<<<<<< HEAD
-public class UserService {
-
-}
-=======
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Optional;
@@ -65,4 +60,4 @@ public class UserService {
     }
 
 }
->>>>>>> 730b32ca4b65ef7fdcfd2423ba150e18b2d6b794
+

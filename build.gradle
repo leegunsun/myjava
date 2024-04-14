@@ -28,10 +28,8 @@ dependencies {
 
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 
-<<<<<<< HEAD
-=======
 	runtimeOnly("com.mysql:mysql-connector-j")
->>>>>>> 730b32ca4b65ef7fdcfd2423ba150e18b2d6b794
+
 }
 
 tasks.named('test') {
