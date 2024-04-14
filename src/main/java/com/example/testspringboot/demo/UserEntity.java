@@ -1,7 +1,11 @@
 package com.example.testspringboot.demo;
+<<<<<<< HEAD
 
 import jakarta.persistence.*;
 
+=======
+import jakarta.persistence.*;
+>>>>>>> 730b32ca4b65ef7fdcfd2423ba150e18b2d6b794
 import lombok.*;
 
 @Getter
