@@ -20,7 +20,7 @@ public class DatabaseInitializer {
 
     @PostConstruct
     public void init() throws SQLException {
-        if (tableExists("User")) { // "User"는 확인하고자 하는 테이블 이름
+        if (!tableExists("User")) { // "User"는 확인하고자 하는 테이블 이름
             createTable();
         }
     }

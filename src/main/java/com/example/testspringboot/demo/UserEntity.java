@@ -23,6 +23,16 @@ public class UserEntity {
     @Column(nullable = false, length = 100)
     private String email;
 
+    @Column(nullable = false, length = 100)
+    private String testColum;
+
     @Version
     private int version;
+
+    @PrePersist
+    public void prePersist() {
+        if (this.testColum == null) {
+            this.testColum = "old_data";
+        }
+    }
 }

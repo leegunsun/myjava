@@ -3,6 +3,8 @@ package com.example.testspringboot.demo;
 import com.example.testspringboot.demo.AppConfig;
 import com.example.testspringboot.demo.UserRepository;
 import com.example.testspringboot.demo.UserService;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -10,7 +12,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.SignatureException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
@@ -20,6 +25,50 @@ public class UserController {
     private final UserRepository userRepository;
     private final UserService userService;
     private final AppConfig appConfig;
+    private JwtTokenProvider jwtTokenProvider;
+
+    @PostMapping("/login")
+    public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {
+        System.out.println("Request received: " + loginRequest.getUsername());
+        // 인증 로직 추가 (예: 사용자 인증)
+        String username = loginRequest.getUsername();
+
+        // 토큰 발급
+        String accessToken = JwtTokenProvider.generateAccessToken(username);
+        String refreshToken = JwtTokenProvider.generateRefreshToken(username);
+
+        return ResponseEntity.ok(new TokenResponse(accessToken, refreshToken));
+    }
+
+    @PostMapping("/refresh")
+    public ResponseEntity<?> refresh(@RequestHeader(value = "Authorization", required = true) String authorizationHeader) {
+//        if (jwtTokenProvider.validateToken(authorizationHeader)) {
+//            String userId = jwtTokenProvider.getClaims(refreshRequest.getRefreshToken()).getSubject();
+//            String newAccessToken = jwtTokenProvider.createAccessToken(userId, "USER");
+//            return ResponseEntity.ok(new AuthResponse(newAccessToken, refreshRequest.getRefreshToken()));
+//        }
+
+        try {
+
+            if (!authorizationHeader.startsWith("Bearer ")) {
+                return ResponseEntity.status(401).body("Invalid refresh token");
+            }
+
+            // "Bearer " 제거 후 JWT 추출
+            String token = authorizationHeader.substring(7);
+
+            Claims claims = JwtTokenProvider.validateToken(token);
+
+            return ResponseEntity.status(200).body("토큰이 유효합니다. 사용자: " + claims.getSubject());
+        } catch (Exception e) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("status", 401);
+            response.put("error", "Unauthorized");
+            response.put("message", e.getMessage());
+            response.put("timestamp", System.currentTimeMillis());
+            return ResponseEntity.status(401).body(response);
+        }
+    }
 
     @GetMapping("car")
     public ResponseEntity<?> carTest() {
