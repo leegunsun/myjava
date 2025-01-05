@@ -1,22 +1,16 @@
 package com.example.testspringboot.demo;
 
-import com.example.testspringboot.demo.AppConfig;
-import com.example.testspringboot.demo.UserRepository;
-import com.example.testspringboot.demo.UserService;
 import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.jdbc.core.JdbcOperations;
-import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.security.SignatureException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -167,21 +161,21 @@ public class UserController {
     }
 
     @PostMapping("create")
-    public ResponseEntity<?> createUser(@RequestBody Map<String, String> requestBody) {
+    public ResponseEntity<?> createUser(@RequestBody @Validated UserEntity requestBody) {
 
         try {
-            String username = requestBody.get("username");
-            String email = requestBody.get("email");
-            String passwordHash = requestBody.get("passwordHash");
+//            String username = requestBody.get("username");
+//            String email = requestBody.get("email");
+//            String passwordHash = requestBody.get("passwordHash");
 
-            UserEntity user = UserEntity.builder()
-                    .username(username)
-                    .email(email)
-                    .password_hash(passwordHash)
-                    .build();
+//            UserEntity user = UserEntity.builder()
+//                    .username(username)
+//                    .email(email)
+//                    .password_hash(passwordHash)
+//                    .build();
 
             // UserEntity 생성 및 저장
-            UserEntity result = userRepository.save(user);
+            UserEntity result = userRepository.save(requestBody);
 
             return ResponseEntity.ok(result);
         } catch (DataIntegrityViolationException e) {

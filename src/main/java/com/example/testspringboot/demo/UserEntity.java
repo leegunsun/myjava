@@ -1,7 +1,7 @@
 package com.example.testspringboot.demo;
 
 import jakarta.persistence.*;
-
+import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -22,12 +22,15 @@ public class UserEntity {
     private Long user_id;
 
     @Column(nullable = false, unique = true, length = 30)
+    @CustomAnnotation
     private String username;
 
     @Column(nullable = false, length = 100)
     private String email;
 
     @Column(nullable = false, length = 100)
+//    @NotBlank(message = "Username cannot be empty", groups = CreateGroup.class)
+    @NotBlank(message = "Username cannot be empty")
     private String password_hash;
 
     @CreationTimestamp
