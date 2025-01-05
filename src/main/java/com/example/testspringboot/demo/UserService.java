@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import jakarta.persistence.EntityManager;
@@ -16,6 +17,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class UserService {
 
+    @Autowired
     private UserRepository userRepository;
 
     @PersistenceContext
@@ -34,11 +36,11 @@ public class UserService {
         UserEntity user1 = new UserEntity();
 
         user1.setEmail("Trans_email [" + formattedNow + "]");
-        user1.setName("Trans_name [" + formattedNow + "]");
+        user1.setUsername("Trans_name [" + formattedNow + "]");
         userRepository.save(user1);
 
         UserEntity user2 = new UserEntity();
-        user2.setName("Trans_name2 [" + formattedNow + "]");
+        user2.setUsername("Trans_name2 [" + formattedNow + "]");
         user2.setEmail("Trans_email2 [" + formattedNow + "]");
         userRepository.save(user2);
     }

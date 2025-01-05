@@ -7,15 +7,20 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.jdbc.core.JdbcOperations;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.SignatureException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @RestController
 @RequiredArgsConstructor
@@ -26,6 +31,7 @@ public class UserController {
     private final UserService userService;
     private final AppConfig appConfig;
     private JwtTokenProvider jwtTokenProvider;
+    private final JdbcOperations jdbcTemplate;
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {
@@ -110,7 +116,7 @@ public class UserController {
     @GetMapping("signup")
     public UserEntity signupWIthGet(@RequestParam("name") String name, @RequestParam("email") String email) {
         UserEntity user = UserEntity.builder()
-                .name(name)
+                .username(name)
                 .email(email)
                 .build();
 
@@ -131,7 +137,7 @@ public class UserController {
     @PostMapping("signup")
     public UserEntity signupWithPost (@RequestBody UserDTO userDTO) {
         UserEntity user = UserEntity.builder()
-                .name(userDTO.getName())
+                .username(userDTO.getName())
                 .email(userDTO.getEmail())
                 .build();
 
@@ -140,18 +146,92 @@ public class UserController {
 
     @PutMapping("update")
     public ResponseEntity<?> updateUser(@RequestBody UserDTO userDTO) {
-        UserEntity existingUser = userRepository.findById(userDTO.getId()).orElse(null);
+        // Optional을 활용하여 사용자 조회
+        Optional<UserEntity> optionalUser = userRepository.findById(userDTO.getId());
 
-        if(existingUser == null) {
+        // 사용자 존재 여부를 안전하게 확인
+        if (optionalUser.isEmpty()) {
             return ResponseEntity.badRequest().body("아이디가 존재하지 않습니다.");
         }
 
-        existingUser.setName(userDTO.getName());
+        // 존재하는 사용자 정보 업데이트
+        UserEntity existingUser = optionalUser.get();
+        existingUser.setUsername(userDTO.getName());
         existingUser.setEmail(userDTO.getEmail());
 
-        UserEntity updateUser = userRepository.save(existingUser);
+        // 변경된 사용자 정보 저장
+        UserEntity updatedUser = userRepository.save(existingUser);
 
-        return ResponseEntity.ok(updateUser);
+        // 성공적으로 업데이트된 사용자 정보 반환
+        return ResponseEntity.ok(updatedUser);
+    }
+
+    @PostMapping("create")
+    public ResponseEntity<?> createUser(@RequestBody Map<String, String> requestBody) {
+
+        try {
+            String username = requestBody.get("username");
+            String email = requestBody.get("email");
+            String passwordHash = requestBody.get("passwordHash");
+
+            UserEntity user = UserEntity.builder()
+                    .username(username)
+                    .email(email)
+                    .password_hash(passwordHash)
+                    .build();
+
+            // UserEntity 생성 및 저장
+            UserEntity result = userRepository.save(user);
+
+            return ResponseEntity.ok(result);
+        } catch (DataIntegrityViolationException e) {
+
+            return ResponseEntity.badRequest().body("Data integrity violation occurred.");
+        } catch (Exception e) {
+            // 기타 예외 처리
+            return ResponseEntity.badRequest().body("An unexpected error occurred: " + e.getMessage());
+        }
+    }
+
+
+    @PostMapping("create2")
+    public ResponseEntity<?> createUser2(@RequestBody Map<String, String> requestBody) {
+
+        try {
+
+            String sql = "INSERT INTO users (username, email, password_hash) VALUES (?, ?, ?)";
+
+            String username = requestBody.get("username");
+            String email = requestBody.get("email");
+            String passwordHash = requestBody.get("passwordHash");
+
+            // UserEntity 생성 및 저장
+            int rowsAffected = jdbcTemplate.update(sql, username, email, passwordHash);
+
+            // 응답 반환
+            if (rowsAffected > 0) {
+                return ResponseEntity.ok("User created successfully.");
+            } else {
+                return ResponseEntity.badRequest().body("Failed to create user.");
+            }
+        } catch (DataIntegrityViolationException e) {
+
+            return ResponseEntity.badRequest().body("Data integrity violation occurred.");
+        } catch (Exception e) {
+            // 기타 예외 처리
+            return ResponseEntity.badRequest().body("An unexpected error occurred: " + e.getMessage());
+        }
+    }
+
+
+    @PostMapping("update")
+    public int updateUser(@RequestBody Map<String, String> requestBody) {
+        String username = requestBody.get("username");
+        String email = requestBody.get("email");
+        String passwordHash = requestBody.get("passwordHash");
+
+        String sql = "UPDATE users SET email = ?, password_hash = ? WHERE username = ?";
+        return jdbcTemplate.update(sql, email, passwordHash, username);
     }
 
     @GetMapping("Tx")
@@ -164,6 +244,20 @@ public class UserController {
         }
     }
 
+    @GetMapping("getName")
+    public ResponseEntity<?> getUsersByName(@RequestParam("name") String name) {
+        return ResponseEntity.ok(userRepository.findByName(name));
+    }
+
+    @GetMapping("getEmail")
+    public ResponseEntity<?> getEmail(@RequestParam("email") String email) {
+        String sql = "SELECT * FROM users WHERE email = ?";
+
+        // 여러 열을 반환하는 쿼리 실행
+        List<Map<String, Object>> result = jdbcTemplate.queryForList(sql, email);
+
+        return ResponseEntity.ok(result);
+    }
 
 }
 
