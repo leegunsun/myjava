@@ -7,6 +7,7 @@ build/
 !**/src/test/**/build/
 src/main/resources/**
 .env
+mytestf-6c08c-firebase-adminsdk-ceevu-3f7c7a4f9f.json
 
 ### STS ###
 .apt_generated

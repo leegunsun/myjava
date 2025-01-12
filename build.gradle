@@ -15,11 +15,12 @@ repositories {
 	mavenCentral()
 }
 
-
 dependencies {
 
 	compileOnly 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok'
+
+	implementation 'com.google.firebase:firebase-admin:9.1.1'
 
 	runtimeOnly 'com.mysql:mysql-connector-j'
 
